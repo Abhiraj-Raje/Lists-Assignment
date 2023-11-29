@@ -4,14 +4,17 @@ cursor = conn.cursor()
 def Login_Page():
     print("Press 1 for student login")
     print("Press 2 for teacher login")
-    print("Press 3 to exit")
+    print("Press 3 for admin login")
+    print("Press 4 to exit")
     l = int(input("Enter your choice: "))
     if l == 1:
         Student_Login()
     elif l == 2:
         Teacher_Login()
     elif l == 3:
-        pass
+        Admin_Login()
+    elif l == 4:
+        pass 
     else:
         print("Enter valid choice")
 def Teacher_Login():
@@ -44,6 +47,7 @@ def Teacher_Interface():
                 print("Press 3 to edit Physics marks")
                 print("Press 4 to edit Chemistry marks")
                 print("Press 5 to edit Computer_Science marks")
+                print("Press 6 to edit another admission number: ")
                 int0 = input("Enter option: ")
                 if int0 == "1":
                     marks = float(input("Enter Math marks: "))
@@ -65,6 +69,8 @@ def Teacher_Interface():
                     marks = float(input("Enter Computer_Science marks: "))
                     cursor.execute('''UPDATE Student_Marks SET Computer_Science = ? WHERE Admission_No = ?''',(marks,admn))
                     conn.commit()
+                elif int0 == "6":
+                    admn = input("Enter new admission number: ")
                 elif int0 == "Exit" or "exit":
                     break
                 cursor.execute('''UPDATE Student_Marks SET Total_Marks = Math + Chemistry + Physics + English + Computer_Science''')
@@ -73,7 +79,9 @@ def Teacher_Interface():
                 cursor.execute('''UPDATE Student_Marks SET STATUS = "PASS" WHERE Percentage >= 40''')
                 conn.commit()
         elif (admn,) not in m:
-            print("Enter correct admission number")
+            print("Admission num in not present")
+        else:
+            print("Enter valid admission number:")
 def Student_Login():
     global Admission_No
     Admission_No = input("Enter admission number: ")
@@ -86,10 +94,18 @@ def Student_Login():
         print("Enter right credentials")
 def Student_Interface():
     global Admission_No
-    cursor.execute('''SELECT * Student_Marks WHERE Admission_No = ?''',(Admission_No,))
+    cursor.execute('''SELECT * FROM Student_Marks WHERE Admission_No = ?''',(Admission_No,))
     m = cursor.fetchall()
-    for i in m:
-        print(i)
+    print("Admission_No:", m[0][0])
+    print("Name:",m[0][1])                                    
+    print("Mathematics", m[0][2])
+    print("Physics", m[0][3])
+    print("English", m[0][4])
+    print("Chemistry", m[0][5])
+    print("Computer Science", m[0][6])
+    print("Total Score", m[0][7])
+    print("Percentage", m[0][8])
+    print("Status:", m[0][9])
 def testing():
     empid = input("enter empl id: ")
     passw = input("Enter password: ")
@@ -118,6 +134,9 @@ def Admin_Interface():
             Password = input("Enter password: ")
             cursor.execute('''INSERT INTO Student_Info (Admission_No,Username,Name,Class,Password) VALUES(?,?,?,?,?) ''', (Admn, Username, Name,Class, Password,))
             conn.commit()
+            inp = input("Press Y to continue and N to break: ")
+            if inp == "N":
+                break
     elif ch == '3':
         edit_teacher_info()
     elif ch == '4':
@@ -167,3 +186,14 @@ def edit_teacher_info():
                 break
     elif (inp,) not in result:
         print("Enter valid employee id")
+def Admin_Login():
+    username = "Admin"
+    password = "Admin"
+    userinp = input("Enter username: ")
+    passinp = input("Enter password:")
+    if userinp == username and passinp == password:
+        Admin_Interface()
+    else:
+        print("Enter correct credentials")
+
+Login_Page()
